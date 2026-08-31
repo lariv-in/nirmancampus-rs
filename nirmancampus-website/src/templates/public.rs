@@ -699,8 +699,8 @@ pub struct StudentZonePage {
 fn fee_field(label: &str, value: &str) -> Markup {
     html! {
         div {
-            dt class="text-xs uppercase tracking-wide opacity-60" { (label) }
-            dd class="font-medium break-words" { (if value.trim().is_empty() { "—" } else { value }) }
+            p class="text-xs uppercase tracking-wide opacity-60" { (label) }
+            p class="font-medium break-words" { (if value.trim().is_empty() { "—" } else { value }) }
         }
     }
 }
@@ -723,24 +723,35 @@ impl RenderTemplate for StudentZonePage {
                                     p class="opacity-60 mt-4" { "No records found." }
                                 } @else {
                                     div class="grid grid-cols-1 gap-4 mt-4" {
-                                        @for rec in &self.records {
+                                        @for (i, rec) in self.records.iter().enumerate() {
                                             div class="card bg-base-100 border border-base-300" {
                                                 div class="card-body py-4" {
-                                                    dl class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-sm" {
-                                                        (fee_field("Session with year", &rec.session_with_year))
+                                                    div class="flex flex-col gap-3 text-sm" {
                                                         (fee_field("Receipt ID", &rec.receipt_id))
-                                                        (fee_field("Name", &rec.name))
-                                                        (fee_field("Dob", &rec.dob))
-                                                        (fee_field("Category", &rec.category))
-                                                        (fee_field("Father Name", &rec.father_name))
-                                                        (fee_field("Mobile", &rec.mobile))
-                                                        (fee_field("Enrollment", &rec.enrollment))
-                                                        (fee_field("Program Code", &rec.program_code))
+                                                        div class="grid grid-cols-1 sm:grid-cols-3 gap-3" {
+                                                            (fee_field("Date of Deposit", &rec.date_of_deposit))
+                                                            (fee_field("Session", &rec.session))
+                                                            (fee_field("Submit Type", &rec.submit_type))
+                                                        }
+                                                        div class="grid grid-cols-1 sm:grid-cols-2 gap-3" {
+                                                            (fee_field("Name", &rec.name))
+                                                            (fee_field("Father Name", &rec.father_name))
+                                                        }
+                                                        div class="grid grid-cols-1 sm:grid-cols-3 gap-3" {
+                                                            (fee_field("DOB", &rec.dob))
+                                                            (fee_field("Category", &rec.category))
+                                                            (fee_field("Mobile", &rec.mobile))
+                                                        }
+                                                        div class="grid grid-cols-1 sm:grid-cols-2 gap-3" {
+                                                            (fee_field("Program Code", &rec.program_code))
+                                                            (fee_field("Enrollment", &rec.enrollment))
+                                                        }
                                                         (fee_field("Courses", &rec.courses))
-                                                        (fee_field("Date of Deposit", &rec.date_of_deposit))
-                                                        (fee_field("Submit type", &rec.submit_type))
                                                     }
                                                 }
+                                            }
+                                            @if i + 1 < self.records.len() {
+                                                hr class="border-base-300";
                                             }
                                         }
                                     }

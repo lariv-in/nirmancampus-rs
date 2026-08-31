@@ -22,7 +22,7 @@ pub enum FeeScope {
 
 #[derive(Clone, Debug)]
 pub struct StudentFeeView {
-    pub session_with_year: String,
+    pub session: String,
     pub receipt_id: String,
     pub name: String,
     pub dob: String,
@@ -39,7 +39,7 @@ pub struct StudentFeeView {
 impl StudentFeeView {
     pub fn from_model(row: &tblfee::Model) -> Self {
         Self {
-            session_with_year: row.session_with_year(),
+            session: row.adm_session.trim().to_string(),
             receipt_id: row.id.to_string(),
             name: row.student.clone(),
             dob: mask_dob_year(&row.dob),
