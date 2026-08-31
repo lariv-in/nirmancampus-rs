@@ -1,0 +1,18 @@
+[package]
+name = "nirmancampus-common"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+lariv-rs = { workspace = true }
+sea-orm = { workspace = true }
+sea-orm-migration = { workspace = true }
+serde = { workspace = true }
+maud = { workspace = true }
+chrono = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+axum = { workspace = true }
+serde_json = { workspace = true }
+zip = { version = "2", default-features = false, features = ["deflate"] }

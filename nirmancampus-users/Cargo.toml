@@ -1,0 +1,16 @@
+[package]
+name = "nirmancampus-users"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+lariv-rs = { workspace = true }
+nirmancampus-common = { workspace = true }
+frunk = { workspace = true }
+frunk_core = { workspace = true }
+sea-orm = { workspace = true }
+sea-orm-migration = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+chrono = { workspace = true }
+anyhow = { workspace = true }

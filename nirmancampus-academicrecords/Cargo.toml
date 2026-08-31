@@ -1,0 +1,26 @@
+[package]
+name = "nirmancampus-academicrecords"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+lariv-rs = { workspace = true }
+nirmancampus-common = { workspace = true }
+nirmancampus-courses = { workspace = true }
+nirmancampus-programs = { workspace = true }
+nirmancampus-sessions = { workspace = true }
+nirmancampus-students = { workspace = true }
+frunk = { workspace = true }
+frunk_core = { workspace = true }
+sea-orm = { workspace = true }
+sea-orm-migration = { workspace = true }
+async-trait = { workspace = true }
+axum = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+maud = { workspace = true }
+chrono = { workspace = true }
+anyhow = { workspace = true }
+futures-util = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }

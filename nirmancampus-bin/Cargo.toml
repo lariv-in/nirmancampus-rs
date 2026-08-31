@@ -1,0 +1,35 @@
+[package]
+name = "nirmancampus-bin"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "nirmancampus-rs"
+path = "src/main.rs"
+
+[dependencies]
+lariv-rs = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+nirmancampus-users = { workspace = true }
+nirmancampus-courses = { workspace = true }
+nirmancampus-programs = { workspace = true }
+nirmancampus-sessions = { workspace = true }
+nirmancampus-students = { workspace = true }
+nirmancampus-academicrecords = { workspace = true }
+nirmancampus-announcements = { workspace = true }
+nirmancampus-studentapplications = { workspace = true }
+nirmancampus-studentpayments = { workspace = true }
+nirmancampus-examregistrations = { workspace = true }
+nirmancampus-assignmentsubmissions = { workspace = true }
+nirmancampus-dashboard = { workspace = true }
+nirmancampus-website = { workspace = true }
+
+[dev-dependencies]
+uuid = { version = "1", features = ["v4"] }
+tokio = { workspace = true }
+sea-orm = { workspace = true }
+serde_json = { workspace = true }
+lariv-rs = { workspace = true }

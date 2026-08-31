@@ -1,0 +1,12 @@
+lariv_rs::swap_key!(ProgramTableKey, "program-table");
+lariv_rs::swap_key!(ProgramCreateModalKey, "programs-create-modal");
+lariv_rs::swap_key!(ProgramEditModalKey, "programs-edit-modal");
+lariv_rs::swap_key!(ProgramDeleteModalKey, "program-delete-modal");
+lariv_rs::swap_key!(ProgramSelectTableKey, "program-selection-table");
+lariv_rs::swap_key!(ProgramSelectModalKey, "program-selection-modal");
+lariv_rs::swap_key!(ProgramMediaMultiSelectTableKey, "program-media-multi-selection-table");
+lariv_rs::swap_key!(ProgramMediaMultiSelectModalKey, "program-media-multi-selection-modal");
+lariv_rs::swap_key!(StructureUnitCreateModalKey, "structure-unit-create-modal");
+lariv_rs::swap_key!(StructureUnitEditModalKey, "structure-unit-edit-modal");
+lariv_rs::swap_key!(StructureUnitDeleteModalKey, "structure-unit-delete-modal");
+lariv_rs::swap_key!(CourseDetailProgramPlacementsKey, "course-detail-program-placements");

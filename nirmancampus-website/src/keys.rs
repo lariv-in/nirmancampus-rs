@@ -1,0 +1,54 @@
+lariv_rs::swap_key!(ImportantLinksTableKey, "website-important-links-table");
+lariv_rs::swap_key!(
+    ImportantLinkCreateModalKey,
+    "website-important-links-create-modal"
+);
+lariv_rs::swap_key!(
+    ImportantLinkEditModalKey,
+    "website-important-links-edit-modal"
+);
+lariv_rs::swap_key!(
+    ImportantLinkDeleteModalKey,
+    "website-important-links-delete-modal"
+);
+
+lariv_rs::swap_key!(
+    StudentZoneSectionTableKey,
+    "website-student-zone-sections-table"
+);
+lariv_rs::swap_key!(
+    StudentZoneSectionCreateModalKey,
+    "website-student-zone-sections-create-modal"
+);
+lariv_rs::swap_key!(
+    StudentZoneSectionEditModalKey,
+    "website-student-zone-sections-edit-modal"
+);
+lariv_rs::swap_key!(
+    StudentZoneSectionDeleteModalKey,
+    "website-student-zone-sections-delete-modal"
+);
+lariv_rs::swap_key!(
+    StudentZoneSectionSelectTableKey,
+    "website-student-zone-section-selection-table"
+);
+lariv_rs::swap_key!(
+    StudentZoneSectionSelectModalKey,
+    "website-student-zone-section-selection-modal"
+);
+
+lariv_rs::swap_key!(StudentZoneItemTableKey, "website-student-zone-items-table");
+lariv_rs::swap_key!(
+    StudentZoneItemCreateModalKey,
+    "website-student-zone-items-create-modal"
+);
+lariv_rs::swap_key!(
+    StudentZoneItemEditModalKey,
+    "website-student-zone-items-edit-modal"
+);
+lariv_rs::swap_key!(
+    StudentZoneItemDeleteModalKey,
+    "website-student-zone-items-delete-modal"
+);
+
+lariv_rs::swap_key!(TblfeeTableKey, "website-tblfee-table");

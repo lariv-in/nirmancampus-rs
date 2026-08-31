@@ -1,0 +1,9 @@
+lariv_rs::swap_key!(AcademicRecordTableKey, "academicrecords-table");
+lariv_rs::swap_key!(AcademicRecordCreateModalKey, "academicrecords-create-modal");
+lariv_rs::swap_key!(AcademicRecordEditModalKey, "academicrecords-edit-modal");
+lariv_rs::swap_key!(AcademicRecordDeleteModalKey, "academicrecord-delete-modal");
+lariv_rs::swap_key!(AcademicRecordSelectTableKey, "academicrecords-selection-table");
+lariv_rs::swap_key!(AcademicRecordSelectModalKey, "academicrecords-selection-modal");
+lariv_rs::swap_key!(PsuSelectTableKey, "academicrecords-program-structure-unit-selection-table");
+lariv_rs::swap_key!(PsuSelectModalKey, "academicrecords-program-structure-unit-selection-modal");
+lariv_rs::swap_key!(StudentDetailAcademicRecordsKey, "student-detail-academic-records-table");

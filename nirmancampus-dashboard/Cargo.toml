@@ -1,0 +1,14 @@
+[package]
+name = "nirmancampus-dashboard"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+lariv-rs = { workspace = true }
+nirmancampus-common = { workspace = true }
+frunk = { workspace = true }
+frunk_core = { workspace = true }
+async-trait = { workspace = true }
+axum = { workspace = true }
+serde = { workspace = true }
+maud = { workspace = true }

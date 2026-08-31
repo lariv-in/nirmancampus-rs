@@ -1,0 +1,85 @@
+[workspace]
+members = [
+    "nirmancampus-common",
+    "nirmancampus-users",
+    "nirmancampus-courses",
+    "nirmancampus-programs",
+    "nirmancampus-sessions",
+    "nirmancampus-students",
+    "nirmancampus-academicrecords",
+    "nirmancampus-announcements",
+    "nirmancampus-studentapplications",
+    "nirmancampus-studentpayments",
+    "nirmancampus-examregistrations",
+    "nirmancampus-assignmentsubmissions",
+    "nirmancampus-dashboard",
+    "nirmancampus-website",
+    "nirmancampus-bin",
+]
+resolver = "2"
+default-members = ["nirmancampus-bin"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+
+[workspace.dependencies]
+lariv-rs = {
+    path = "../../lariv-rs",
+    default-features = false,
+    features = [
+        "plugin-users",
+        "plugin-dashboard",
+        "plugin-otp",
+        "plugin-pwa",
+        "plugin-filesystem",
+    ]
+}
+frunk = { version = "0.5.0", features = ["serde", "std"] }
+frunk_core = "0.5.0"
+tokio = { version = "1", features = ["full"] }
+anyhow = { version = "1", features = ["backtrace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+sea-orm = { version = "1.1", features = [
+    "sqlx-postgres",
+    "sqlx-sqlite",
+    "runtime-tokio-rustls",
+    "macros",
+    "with-chrono",
+    "with-json",
+    "with-rust_decimal",
+] }
+sea-orm-migration = { version = "1.1", features = [
+    "sqlx-postgres",
+    "sqlx-sqlite",
+    "runtime-tokio-rustls",
+] }
+async-trait = "0.1"
+axum = { version = "0.8", features = ["form", "macros"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+maud = { version = "0.27", features = ["axum"] }
+chrono = { version = "0.4", features = ["serde", "clock"] }
+rust_decimal = { version = "1", features = ["serde-with-str"] }
+futures-util = "0.3"
+tower-http = { version = "0.6", features = ["fs"] }
+
+nirmancampus-common = { path = "nirmancampus-common" }
+nirmancampus-users = { path = "nirmancampus-users" }
+nirmancampus-courses = { path = "nirmancampus-courses" }
+nirmancampus-programs = { path = "nirmancampus-programs" }
+nirmancampus-sessions = { path = "nirmancampus-sessions" }
+nirmancampus-students = { path = "nirmancampus-students" }
+nirmancampus-academicrecords = { path = "nirmancampus-academicrecords" }
+nirmancampus-announcements = { path = "nirmancampus-announcements" }
+nirmancampus-studentapplications = { path = "nirmancampus-studentapplications" }
+nirmancampus-studentpayments = { path = "nirmancampus-studentpayments" }
+nirmancampus-examregistrations = { path = "nirmancampus-examregistrations" }
+nirmancampus-assignmentsubmissions = { path = "nirmancampus-assignmentsubmissions" }
+nirmancampus-dashboard = { path = "nirmancampus-dashboard" }
+nirmancampus-website = { path = "nirmancampus-website" }
+
+[profile.release]
+lto = "thin"
+strip = true
