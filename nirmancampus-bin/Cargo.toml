@@ -22,6 +22,7 @@ nirmancampus-academicrecords = { workspace = true }
 nirmancampus-announcements = { workspace = true }
 nirmancampus-studentapplications = { workspace = true }
 nirmancampus-studentpayments = { workspace = true }
+nirmancampus-studentfees = { workspace = true }
 nirmancampus-examregistrations = { workspace = true }
 nirmancampus-assignmentsubmissions = { workspace = true }
 nirmancampus-dashboard = { workspace = true }

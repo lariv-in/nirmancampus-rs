@@ -1,6 +1,6 @@
 use lariv_rs::html_form::{
-    Upload, html_form,
-    widgets::{Checkbox, File, Number, Text},
+    html_form,
+    widgets::{Checkbox, Number, Text},
 };
 use lariv_rs::plugins::filesystem::routes::VNodeFileSelectRouteTag;
 
@@ -102,16 +102,4 @@ pub struct ContactPageSettingsForm {
         placeholder = "Select a PDF…"
     )]
     pub essential_committees_list_file_id: i64,
-}
-
-#[html_form]
-pub struct TblfeeFilterForm {
-    #[form(label = "Search", widget = Text)]
-    pub search: String,
-}
-
-#[html_form(default)]
-pub struct TblfeeUploadForm {
-    #[form(label = "Excel file (.xlsx)", widget = File, accept = ".xlsx", required)]
-    pub file: Upload,
 }

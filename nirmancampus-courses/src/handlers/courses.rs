@@ -158,7 +158,7 @@ async fn query_courses(
         s if s.eq_ignore_ascii_case("Fee ASC") || s.eq_ignore_ascii_case("Fee") => {
             query.order_by_asc(course::Column::Fee)
         }
-        _ => query.order_by_asc(course::Column::Name),
+        _ => query.order_by_desc(course::Column::Id),
     };
 
     let page = q.page.unwrap_or(1).max(1);

@@ -59,7 +59,6 @@ async fn assignments_section(
     let Ok(rows) = AssignmentEntity::find()
         .filter(assignment_submission::Column::DeletedAt.is_null())
         .filter(assignment_submission::Column::AcademicRecordId.eq(academic_record_id))
-        .order_by_desc(assignment_submission::Column::CreatedAt)
         .order_by_desc(assignment_submission::Column::Id)
         .all(db)
         .await

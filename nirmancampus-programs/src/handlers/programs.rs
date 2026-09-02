@@ -151,7 +151,7 @@ async fn query_programs(
         s if s.eq_ignore_ascii_case("Fee ASC") || s.eq_ignore_ascii_case("Fee") => {
             query.order_by_asc(program::Column::Fee)
         }
-        _ => query.order_by_asc(program::Column::Name),
+        _ => query.order_by_desc(program::Column::Id),
     };
 
     let page = q.page.unwrap_or(1).max(1);

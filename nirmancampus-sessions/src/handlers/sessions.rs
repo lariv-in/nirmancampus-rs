@@ -132,7 +132,7 @@ async fn query_sessions(
         s if s.eq_ignore_ascii_case("Start DESC") => {
             query.order_by_desc(admission_session::Column::Start)
         }
-        _ => query.order_by_desc(admission_session::Column::Start),
+        _ => query.order_by_desc(admission_session::Column::Id),
     };
     let page = q.page.unwrap_or(1).max(1);
     let paginator = query.paginate(db, PAGE_SIZE as u64);

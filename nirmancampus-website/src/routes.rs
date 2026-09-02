@@ -4,7 +4,7 @@ use super::{
         ImportantLinkDeleteModalKey, ImportantLinksTableKey, StudentZoneItemDeleteModalKey,
         StudentZoneItemTableKey, StudentZoneSectionDeleteModalKey,
         StudentZoneSectionSelectModalKey, StudentZoneSectionSelectTableKey,
-        StudentZoneSectionTableKey, TblfeeTableKey,
+        StudentZoneSectionTableKey,
     },
 };
 
@@ -57,9 +57,5 @@ lariv_rs::define_plugin_routes! {
         get WebsiteContactPageSettingsDetailRouteTag, "/website/contact-page/settings/{id}", handlers::contact_page::detail;
         get WebsiteContactPageSettingsEditGetRouteTag, "/website/contact-page/settings/{id}/edit", handlers::contact_page::edit_get;
         post WebsiteContactPageSettingsEditPostRouteTag, "/website/contact-page/settings/{id}/edit", handlers::contact_page::edit_post;
-
-        get WebsiteTblfeeListRouteTag, "/website/tblfee", handlers::tblfee::list, fragment(TblfeeTableKey);
-        post WebsiteTblfeeSyncRouteTag, "/website/tblfee/sync", handlers::tblfee::sync;
-        get WebsiteTblfeeDetailRouteTag, "/website/tblfee/{id}", handlers::tblfee::detail;
     ]
 }

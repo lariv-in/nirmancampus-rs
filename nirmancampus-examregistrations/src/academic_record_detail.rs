@@ -57,7 +57,6 @@ async fn exams_section(
     let Ok(rows) = ExamEntity::find()
         .filter(exam_registration::Column::DeletedAt.is_null())
         .filter(exam_registration::Column::AcademicRecordId.eq(academic_record_id))
-        .order_by_desc(exam_registration::Column::CreatedAt)
         .order_by_desc(exam_registration::Column::Id)
         .all(db)
         .await

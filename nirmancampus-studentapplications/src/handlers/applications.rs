@@ -194,7 +194,7 @@ async fn query_applications(
     if let Some(mobile) = q.mobile.as_ref().filter(|n| !n.is_empty()) {
         query = query.filter(student_application::Column::Mobile.contains(mobile));
     }
-    query = query.order_by_desc(student_application::Column::CreatedAt);
+    query = query.order_by_desc(student_application::Column::Id);
     let page = q.page.unwrap_or(1).max(1);
     let paginator = query.paginate(db, PAGE_SIZE as u64);
     let total = paginator.num_items().await.unwrap_or(0);

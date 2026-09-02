@@ -346,9 +346,7 @@ async fn query_exams(
     if let Some(aid) = q.academic_record_id.filter(|id| *id > 0) {
         query = query.filter(exam_registration::Column::AcademicRecordId.eq(aid));
     }
-    query = query
-        .order_by_desc(exam_registration::Column::CreatedAt)
-        .order_by_desc(exam_registration::Column::Id);
+    query = query.order_by_desc(exam_registration::Column::Id);
     let page = q.page.unwrap_or(1).max(1);
     let paginator = query.paginate(db, PAGE_SIZE as u64);
     let total = paginator.num_items().await.unwrap_or(0);

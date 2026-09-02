@@ -3,7 +3,7 @@
 use frunk::Generic;
 use maud::{Markup, PreEscaped, html};
 
-use crate::fee_session::StudentFeeView;
+use nirmancampus_studentfees::StudentFeeView;
 use lariv_rs::{
     components::{ShellBase, ShellChrome, shell_base},
     template::RenderTemplate,

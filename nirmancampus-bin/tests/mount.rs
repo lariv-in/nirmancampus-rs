@@ -64,6 +64,7 @@ macro_rules! install_nirmancampus {
         let app = nirmancampus_announcements::install(app);
         let app = nirmancampus_studentapplications::install(app);
         let app = nirmancampus_studentpayments::install(app);
+        let app = nirmancampus_studentfees::install(app);
         let app = nirmancampus_examregistrations::install(app);
         let app = nirmancampus_assignmentsubmissions::install(app);
         let app = dashboard::install(app);

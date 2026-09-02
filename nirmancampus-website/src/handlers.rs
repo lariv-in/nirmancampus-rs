@@ -4,7 +4,6 @@ pub mod important_links;
 pub mod public;
 pub mod static_files;
 pub mod student_zone;
-pub mod tblfee;
 
 use axum::{
     http::{HeaderValue, StatusCode, header},

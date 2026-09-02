@@ -201,9 +201,7 @@ async fn query_payments(
         s if s.eq_ignore_ascii_case("Amount ASC") || s.eq_ignore_ascii_case("Amount") => {
             query.order_by_asc(payment::Column::Amount)
         }
-        _ => query
-            .order_by_desc(payment::Column::CreatedAt)
-            .order_by_desc(payment::Column::Id),
+        _ => query.order_by_desc(payment::Column::Id),
     };
     let page = q.page.unwrap_or(1).max(1);
     let paginator = query.paginate(db, PAGE_SIZE as u64);

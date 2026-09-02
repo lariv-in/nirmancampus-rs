@@ -56,7 +56,6 @@ async fn records_section(db: &DatabaseConnection, student_id: i64, auth: &AuthCo
     let Ok(rows) = AcademicRecordEntity::find()
         .filter(academic_record::Column::DeletedAt.is_null())
         .filter(academic_record::Column::StudentId.eq(student_id))
-        .order_by_desc(academic_record::Column::CreatedAt)
         .order_by_desc(academic_record::Column::Id)
         .all(db)
         .await

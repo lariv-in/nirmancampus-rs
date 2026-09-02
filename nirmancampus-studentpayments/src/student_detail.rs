@@ -54,7 +54,6 @@ async fn payments_section(db: &DatabaseConnection, student_id: i64, auth: &AuthC
     let Ok(rows) = PaymentEntity::find()
         .filter(payment::Column::DeletedAt.is_null())
         .filter(payment::Column::StudentId.eq(student_id))
-        .order_by_desc(payment::Column::CreatedAt)
         .order_by_desc(payment::Column::Id)
         .all(db)
         .await

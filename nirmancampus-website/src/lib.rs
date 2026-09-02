@@ -14,7 +14,6 @@ pub mod migrations;
 pub mod routes;
 pub mod seed;
 pub mod state;
-pub mod tblfee_xlsx;
 pub mod templates;
 
 mod create_modals;

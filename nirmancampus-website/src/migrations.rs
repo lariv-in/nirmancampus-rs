@@ -4,6 +4,7 @@ use super::NirmancampusWebsiteTag;
 
 mod m20260831_000001_create_website;
 mod m20260831_000002_create_tblfee;
+mod m20260902_000003_drop_tblfee;
 
 #[derive(Clone, Copy, Default)]
 pub struct Migrator;
@@ -14,6 +15,7 @@ impl MigratorTrait for Migrator {
         vec![
             Box::new(m20260831_000001_create_website::Migration),
             Box::new(m20260831_000002_create_tblfee::Migration),
+            Box::new(m20260902_000003_drop_tblfee::Migration),
         ]
     }
 }

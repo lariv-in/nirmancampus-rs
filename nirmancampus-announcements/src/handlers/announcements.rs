@@ -172,7 +172,7 @@ async fn query_announcements(
         s if s.eq_ignore_ascii_case("ReleaseAt DESC") => {
             query.order_by_desc(announcement::Column::ReleaseAt)
         }
-        _ => query.order_by_asc(announcement::Column::ReleaseAt),
+        _ => query.order_by_desc(announcement::Column::Id),
     };
     let page = q.page.unwrap_or(1).max(1);
     let paginator = query.paginate(db, PAGE_SIZE as u64);

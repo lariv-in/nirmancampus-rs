@@ -50,5 +50,3 @@ lariv_rs::swap_key!(
     StudentZoneItemDeleteModalKey,
     "website-student-zone-items-delete-modal"
 );
-
-lariv_rs::swap_key!(TblfeeTableKey, "website-tblfee-table");

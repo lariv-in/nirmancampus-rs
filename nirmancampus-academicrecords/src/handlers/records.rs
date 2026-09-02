@@ -423,9 +423,7 @@ async fn query_records(
             .collect();
         query = query.filter(academic_record::Column::ProgramStructureUnitId.is_in(psu_ids));
     }
-    query = query
-        .order_by_desc(academic_record::Column::CreatedAt)
-        .order_by_desc(academic_record::Column::Id);
+    query = query.order_by_desc(academic_record::Column::Id);
     let page = q.page.unwrap_or(1).max(1);
     let paginator = query.paginate(db, PAGE_SIZE as u64);
     let total = paginator.num_items().await.unwrap_or(0);

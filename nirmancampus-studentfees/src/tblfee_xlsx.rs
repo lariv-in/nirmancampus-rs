@@ -1,25 +1,26 @@
-//! Parse tblfee.xlsx and upsert rows by Receipt ID.
+//! Parse tblfee.xlsx and upsert rows by Receipt ID into MySQL `tblfee`.
 
 use std::collections::BTreeMap;
 use std::io::Cursor;
 
 use calamine::{Data, Reader, Xlsx, open_workbook_from_rs};
-use chrono::{NaiveDate, TimeDelta, Utc};
+use chrono::{NaiveDate, NaiveDateTime, NaiveTime, TimeDelta};
 use sea_orm::{
     ActiveValue::Set, ColumnTrait, ConnectionTrait, EntityTrait, QueryFilter, TransactionTrait,
     sea_query::OnConflict,
 };
 
-use crate::entities::tblfee::{self, Entity as TblfeeEntity};
+use crate::entities::fee::{self, Entity as FeeEntity};
+use crate::parse::{parse_date_flexible, parse_flag, parse_optional_text};
 
 const BATCH_SIZE: usize = 20;
 
 #[derive(Clone, Debug, Default)]
 pub struct ParsedFeeRow {
-    pub id: i64,
+    pub id: i32,
     pub adm_session: String,
     pub adm_year: String,
-    pub dod: Option<NaiveDate>,
+    pub dod: Option<NaiveDateTime>,
     pub submit: String,
     pub prog: String,
     pub enroll: String,
@@ -65,6 +66,10 @@ pub fn excel_serial_to_date(serial: f64) -> Option<NaiveDate> {
     NaiveDate::from_ymd_opt(1899, 12, 30)?.checked_add_signed(TimeDelta::days(days))
 }
 
+fn date_to_dod(d: NaiveDate) -> Option<NaiveDateTime> {
+    Some(d.and_time(NaiveTime::MIN))
+}
+
 fn cell_to_string(cell: &Data) -> String {
     match cell {
         Data::Empty => String::new(),
@@ -90,33 +95,18 @@ fn cell_to_string(cell: &Data) -> String {
     }
 }
 
-fn cell_to_date(cell: &Data) -> Option<NaiveDate> {
+fn cell_to_dod(cell: &Data) -> Option<NaiveDateTime> {
     match cell {
         Data::Empty => None,
-        Data::DateTime(dt) => excel_serial_to_date(dt.as_f64()),
-        Data::Float(f) => excel_serial_to_date(*f),
-        Data::Int(i) => excel_serial_to_date(*i as f64),
-        Data::String(s) => parse_date_string(s),
-        Data::DateTimeIso(s) => parse_date_string(s),
+        Data::DateTime(dt) => excel_serial_to_date(dt.as_f64()).and_then(date_to_dod),
+        Data::Float(f) => excel_serial_to_date(*f).and_then(date_to_dod),
+        Data::Int(i) => excel_serial_to_date(*i as f64).and_then(date_to_dod),
+        Data::String(s) => parse_date_flexible(s)
+            .and_then(date_to_dod)
+            .or_else(|| s.parse::<f64>().ok().and_then(excel_serial_to_date).and_then(date_to_dod)),
+        Data::DateTimeIso(s) => parse_date_flexible(s).and_then(date_to_dod),
         _ => None,
     }
-}
-
-fn parse_date_string(s: &str) -> Option<NaiveDate> {
-    let s = s.trim();
-    const FMTS: &[&str] = &["%d-%m-%Y", "%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y %H:%M:%S"];
-    for fmt in FMTS {
-        if let Ok(d) = NaiveDate::parse_from_str(s, fmt) {
-            return Some(d);
-        }
-        if let Ok(dt) = chrono::NaiveDateTime::parse_from_str(s, fmt) {
-            return Some(dt.date());
-        }
-    }
-    if let Ok(n) = s.parse::<f64>() {
-        return excel_serial_to_date(n);
-    }
-    None
 }
 
 fn header_key(s: &str) -> String {
@@ -134,23 +124,18 @@ fn cell_at(row: &[Data], idx: Option<usize>) -> String {
         .unwrap_or_default()
 }
 
-fn parse_id(row: &[Data], idx: Option<usize>) -> Option<i64> {
+fn parse_id(row: &[Data], idx: Option<usize>) -> Option<i32> {
     let raw = cell_at(row, idx);
     let raw = raw.trim();
     if raw.is_empty() {
         return None;
     }
     if let Ok(n) = raw.parse::<i64>() {
-        if n > 0 {
-            return Some(n);
-        }
-        return None;
+        return i32::try_from(n).ok().filter(|n| *n > 0);
     }
     if let Ok(f) = raw.parse::<f64>() {
         let n = f.trunc() as i64;
-        if n > 0 {
-            return Some(n);
-        }
+        return i32::try_from(n).ok().filter(|n| *n > 0);
     }
     None
 }
@@ -210,7 +195,7 @@ pub fn parse_tblfee_xlsx(bytes: &[u8]) -> Result<(Vec<ParsedFeeRow>, u64), Strin
     let online_exported = idx("OnlineExported");
 
     let mut skipped = 0u64;
-    let mut by_id: BTreeMap<i64, ParsedFeeRow> = BTreeMap::new();
+    let mut by_id: BTreeMap<i32, ParsedFeeRow> = BTreeMap::new();
     for row in row_iter {
         if row.iter().all(|c| matches!(c, Data::Empty)) {
             continue;
@@ -219,7 +204,7 @@ pub fn parse_tblfee_xlsx(bytes: &[u8]) -> Result<(Vec<ParsedFeeRow>, u64), Strin
             skipped += 1;
             continue;
         };
-        let dod_val = dod.and_then(|i| row.get(i)).and_then(cell_to_date);
+        let dod_val = dod.and_then(|i| row.get(i)).and_then(cell_to_dod);
         by_id.insert(
             id,
             ParsedFeeRow {
@@ -261,80 +246,77 @@ pub fn parse_tblfee_xlsx(bytes: &[u8]) -> Result<(Vec<ParsedFeeRow>, u64), Strin
     Ok((by_id.into_values().collect(), skipped))
 }
 
-fn to_active(row: &ParsedFeeRow, now: chrono::DateTime<Utc>) -> tblfee::ActiveModel {
-    tblfee::ActiveModel {
+fn to_active(row: &ParsedFeeRow) -> fee::ActiveModel {
+    fee::ActiveModel {
         id: Set(row.id),
-        created_at: Set(Some(now)),
-        updated_at: Set(Some(now)),
-        adm_session: Set(row.adm_session.clone()),
-        adm_year: Set(row.adm_year.clone()),
+        adm_session: Set(parse_optional_text(&row.adm_session)),
+        adm_year: Set(parse_optional_text(&row.adm_year)),
         dod: Set(row.dod),
-        submit: Set(row.submit.clone()),
-        prog: Set(row.prog.clone()),
-        enroll: Set(row.enroll.clone()),
-        student: Set(row.student.clone()),
-        year_sem: Set(row.year_sem.clone()),
-        category: Set(row.category.clone()),
-        dob: Set(row.dob.clone()),
-        contact: Set(row.contact.clone()),
-        deposit: Set(row.deposit.clone()),
-        nsd: Set(row.nsd.clone()),
-        fee: Set(row.fee.clone()),
-        courses: Set(row.courses.clone()),
-        remarks: Set(row.remarks.clone()),
-        deposit_by: Set(row.deposit_by.clone()),
-        ts: Set(row.ts.clone()),
-        medium: Set(row.medium.clone()),
-        mother_name: Set(row.mother_name.clone()),
-        father_name: Set(row.father_name.clone()),
-        username: Set(row.username.clone()),
-        control_id: Set(row.control_id.clone()),
-        descrepency: Set(row.descrepency.clone()),
-        university: Set(row.university.clone()),
-        payment_mode: Set(row.payment_mode.clone()),
-        trans_id: Set(row.trans_id.clone()),
-        bank: Set(row.bank.clone()),
-        rm: Set(row.rm.clone()),
-        is_reconciled: Set(row.is_reconciled.clone()),
-        online_exported: Set(row.online_exported.clone()),
+        submit: Set(parse_optional_text(&row.submit)),
+        prog: Set(parse_optional_text(&row.prog)),
+        enroll: Set(parse_optional_text(&row.enroll)),
+        student: Set(parse_optional_text(&row.student)),
+        year_sem: Set(parse_optional_text(&row.year_sem)),
+        category: Set(parse_optional_text(&row.category)),
+        dob: Set(parse_optional_text(&row.dob)),
+        contact: Set(parse_optional_text(&row.contact)),
+        deposit: Set(parse_optional_text(&row.deposit)),
+        nsd: Set(parse_optional_text(&row.nsd)),
+        fee: Set(parse_optional_text(&row.fee)),
+        courses: Set(parse_optional_text(&row.courses)),
+        remarks: Set(parse_optional_text(&row.remarks)),
+        deposit_by: Set(parse_optional_text(&row.deposit_by)),
+        ts: Set(parse_optional_text(&row.ts)),
+        medium: Set(parse_optional_text(&row.medium)),
+        mother_name: Set(parse_optional_text(&row.mother_name)),
+        father_name: Set(parse_optional_text(&row.father_name)),
+        username: Set(parse_optional_text(&row.username)),
+        control_id: Set(parse_optional_text(&row.control_id)),
+        descrepency: Set(parse_optional_text(&row.descrepency)),
+        university: Set(parse_optional_text(&row.university)),
+        payment_mode: Set(parse_optional_text(&row.payment_mode)),
+        trans_id: Set(parse_optional_text(&row.trans_id)),
+        bank: Set(parse_optional_text(&row.bank)),
+        rm: Set(parse_optional_text(&row.rm)),
+        is_reconciled: Set(parse_flag(&row.is_reconciled)),
+        online_exported: Set(parse_flag(&row.online_exported)),
     }
 }
 
 fn conflict() -> OnConflict {
-    OnConflict::column(tblfee::Column::Id)
+    OnConflict::column(fee::Column::Id)
         .update_columns([
-            tblfee::Column::UpdatedAt,
-            tblfee::Column::AdmSession,
-            tblfee::Column::AdmYear,
-            tblfee::Column::Dod,
-            tblfee::Column::Submit,
-            tblfee::Column::Prog,
-            tblfee::Column::Enroll,
-            tblfee::Column::Student,
-            tblfee::Column::YearSem,
-            tblfee::Column::Category,
-            tblfee::Column::Dob,
-            tblfee::Column::Contact,
-            tblfee::Column::Deposit,
-            tblfee::Column::Nsd,
-            tblfee::Column::Fee,
-            tblfee::Column::Courses,
-            tblfee::Column::Remarks,
-            tblfee::Column::DepositBy,
-            tblfee::Column::Ts,
-            tblfee::Column::Medium,
-            tblfee::Column::MotherName,
-            tblfee::Column::FatherName,
-            tblfee::Column::Username,
-            tblfee::Column::ControlId,
-            tblfee::Column::Descrepency,
-            tblfee::Column::University,
-            tblfee::Column::PaymentMode,
-            tblfee::Column::TransId,
-            tblfee::Column::Bank,
-            tblfee::Column::Rm,
-            tblfee::Column::IsReconciled,
-            tblfee::Column::OnlineExported,
+            fee::Column::AdmSession,
+            fee::Column::AdmYear,
+            fee::Column::Dod,
+            fee::Column::Submit,
+            fee::Column::Prog,
+            fee::Column::Enroll,
+            fee::Column::Student,
+            fee::Column::YearSem,
+            fee::Column::Category,
+            fee::Column::Dob,
+            fee::Column::Contact,
+            fee::Column::Deposit,
+            fee::Column::Nsd,
+            fee::Column::Fee,
+            fee::Column::Courses,
+            fee::Column::Remarks,
+            fee::Column::DepositBy,
+            fee::Column::Ts,
+            fee::Column::Medium,
+            fee::Column::MotherName,
+            fee::Column::FatherName,
+            fee::Column::Username,
+            fee::Column::ControlId,
+            fee::Column::Descrepency,
+            fee::Column::University,
+            fee::Column::PaymentMode,
+            fee::Column::TransId,
+            fee::Column::Bank,
+            fee::Column::Rm,
+            fee::Column::IsReconciled,
+            fee::Column::OnlineExported,
         ])
         .to_owned()
 }
@@ -343,12 +325,11 @@ pub async fn upsert_rows<C: ConnectionTrait + TransactionTrait>(
     db: &C,
     rows: &[ParsedFeeRow],
 ) -> Result<SyncReport, String> {
-    let now = Utc::now();
-    let ids: Vec<i64> = rows.iter().map(|r| r.id).collect();
-    let mut existing: std::collections::HashSet<i64> = std::collections::HashSet::new();
+    let ids: Vec<i32> = rows.iter().map(|r| r.id).collect();
+    let mut existing: std::collections::HashSet<i32> = std::collections::HashSet::new();
     for chunk in ids.chunks(500) {
-        let found = TblfeeEntity::find()
-            .filter(tblfee::Column::Id.is_in(chunk.to_vec()))
+        let found = FeeEntity::find()
+            .filter(fee::Column::Id.is_in(chunk.to_vec()))
             .all(db)
             .await
             .map_err(|e| e.to_string())?;
@@ -359,12 +340,11 @@ pub async fn upsert_rows<C: ConnectionTrait + TransactionTrait>(
 
     let txn = db.begin().await.map_err(|e| e.to_string())?;
     for chunk in rows.chunks(BATCH_SIZE) {
-        let models: Vec<tblfee::ActiveModel> =
-            chunk.iter().map(|row| to_active(row, now)).collect();
+        let models: Vec<fee::ActiveModel> = chunk.iter().map(to_active).collect();
         if models.is_empty() {
             continue;
         }
-        TblfeeEntity::insert_many(models)
+        FeeEntity::insert_many(models)
             .on_conflict(conflict())
             .exec(&txn)
             .await

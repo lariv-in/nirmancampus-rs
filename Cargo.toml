@@ -10,6 +10,7 @@ members = [
     "nirmancampus-announcements",
     "nirmancampus-studentapplications",
     "nirmancampus-studentpayments",
+    "nirmancampus-studentfees",
     "nirmancampus-examregistrations",
     "nirmancampus-assignmentsubmissions",
     "nirmancampus-dashboard",
@@ -76,6 +77,7 @@ nirmancampus-academicrecords = { path = "nirmancampus-academicrecords" }
 nirmancampus-announcements = { path = "nirmancampus-announcements" }
 nirmancampus-studentapplications = { path = "nirmancampus-studentapplications" }
 nirmancampus-studentpayments = { path = "nirmancampus-studentpayments" }
+nirmancampus-studentfees = { path = "nirmancampus-studentfees" }
 nirmancampus-examregistrations = { path = "nirmancampus-examregistrations" }
 nirmancampus-assignmentsubmissions = { path = "nirmancampus-assignmentsubmissions" }
 nirmancampus-dashboard = { path = "nirmancampus-dashboard" }

@@ -5,7 +5,6 @@ use lariv_rs::components::{SidebarMenu, SidebarMenuItem, sidebar_menu, sidebar_m
 use crate::routes::{
     WebsiteAppLandingRouteTag, WebsiteImportantLinksListRouteTag,
     WebsiteStudentZoneItemsListRouteTag, WebsiteStudentZoneSectionsListRouteTag,
-    WebsiteTblfeeListRouteTag,
 };
 use nirmancampus_common::ui::{current_crumb, list_crumbs, nested_crumbs};
 
@@ -26,11 +25,6 @@ pub fn website_menu() -> Markup {
             (sidebar_menu_item(SidebarMenuItem {
                 title: "Student Zone Items",
                 url: "/website/student-zone/items/",
-                ..Default::default()
-            }))
-            (sidebar_menu_item(SidebarMenuItem {
-                title: "Fee records",
-                url: "/website/tblfee/",
                 ..Default::default()
             }))
             (sidebar_menu_item(SidebarMenuItem {
@@ -84,16 +78,6 @@ pub fn student_zone_item_detail_crumbs(title: &str) -> Markup {
     let home = WebsiteAppLandingRouteTag.url();
     let list_url = WebsiteStudentZoneItemsListRouteTag.url();
     nested_crumbs("Website", &home, "Student Zone Items", &list_url, title)
-}
-
-pub fn tblfee_crumbs() -> Markup {
-    website_crumbs("Fee records")
-}
-
-pub fn tblfee_detail_crumbs(leaf: &str) -> Markup {
-    let home = WebsiteAppLandingRouteTag.url();
-    let list_url = WebsiteTblfeeListRouteTag.url();
-    nested_crumbs("Website", &home, "Fee records", &list_url, leaf)
 }
 
 pub fn contact_page_crumbs() -> Markup {

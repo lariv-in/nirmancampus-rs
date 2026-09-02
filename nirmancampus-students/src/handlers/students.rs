@@ -226,9 +226,7 @@ async fn query_students(
         s if s.eq_ignore_ascii_case("Email ASC") || s.eq_ignore_ascii_case("Email") => {
             query.order_by_asc(student::Column::Email)
         }
-        _ => query
-            .order_by_desc(student::Column::CreatedAt)
-            .order_by_desc(student::Column::Id),
+        _ => query.order_by_desc(student::Column::Id),
     };
 
     let page = q.page.unwrap_or(1).max(1);

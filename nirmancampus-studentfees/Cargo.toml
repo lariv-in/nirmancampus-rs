@@ -1,25 +1,21 @@
 [package]
-name = "nirmancampus-website"
+name = "nirmancampus-studentfees"
 version.workspace = true
 edition.workspace = true
 
 [dependencies]
 lariv-rs = { workspace = true }
 nirmancampus-common = { workspace = true }
-nirmancampus-studentfees = { workspace = true }
-nirmancampus-announcements = { workspace = true }
-nirmancampus-programs = { workspace = true }
 frunk = { workspace = true }
 frunk_core = { workspace = true }
-sea-orm = { workspace = true }
+sea-orm = { workspace = true, features = ["sqlx-mysql"] }
 sea-orm-migration = { workspace = true }
 async-trait = { workspace = true }
 axum = { workspace = true, features = ["multipart"] }
+calamine = "0.26"
 serde = { workspace = true }
 maud = { workspace = true }
 chrono = { workspace = true }
 anyhow = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
-hmac = "0.12"
-sha2 = "0.10"

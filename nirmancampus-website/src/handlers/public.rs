@@ -13,12 +13,8 @@ use crate::{
         important_link::{self, Entity as ImportantLinkEntity},
         student_zone_item::{self, Entity as StudentZoneItemEntity},
         student_zone_section::{self, Entity as StudentZoneSectionEntity},
-        tblfee::{self, Entity as TblfeeEntity},
     },
-    fee_session::{
-        FeeScope, StudentFeeView, clear_scope_cookie, contact_matches, scope_from_headers,
-        set_scope_cookie,
-    },
+    fee_session::{FeeScope, clear_scope_cookie, scope_from_headers, set_scope_cookie},
     handlers::{media_url, static_files::website_static_path, stream_vnode},
     state::{CONTACT_PAGE_SETTINGS_ID, WebsiteState},
     templates::{
@@ -38,6 +34,9 @@ use lariv_rs::{
 };
 use nirmancampus_announcements::entities::announcement::{self, Entity as AnnouncementEntity};
 use nirmancampus_programs::entities::program::{self, Entity as ProgramEntity};
+use nirmancampus_studentfees::{
+    StudentFeeView, StudentFeesState, contact_matches, find_by_enroll, find_by_id,
+};
 
 fn slot_ctx(auth: &OptionalAuth) -> SlotCtx {
     match &auth.0 {
@@ -230,26 +229,19 @@ async fn load_student_zone_sections(
 }
 
 async fn load_fee_records_for_scope(
-    db: &sea_orm::DatabaseConnection,
+    fees: &StudentFeesState,
     scope: &FeeScope,
 ) -> Vec<StudentFeeView> {
     let models = match scope {
-        FeeScope::Receipt(id) => TblfeeEntity::find_by_id(*id)
-            .all(db)
-            .await
-            .unwrap_or_default(),
-        FeeScope::Enroll(enroll) => TblfeeEntity::find()
-            .filter(tblfee::Column::Enroll.eq(enroll.clone()))
-            .order_by_desc(tblfee::Column::Id)
-            .all(db)
-            .await
-            .unwrap_or_default(),
+        FeeScope::Receipt(id) => find_by_id(fees, *id).await.into_iter().collect(),
+        FeeScope::Enroll(enroll) => find_by_enroll(fees, enroll).await,
     };
     models.iter().map(StudentFeeView::from_model).collect()
 }
 
 async fn render_student_zone(
     state: &WebsiteState,
+    fees: &StudentFeesState,
     chrome: &SharedChromeFolder,
     auth: &OptionalAuth,
     headers: &HeaderMap,
@@ -260,7 +252,7 @@ async fn render_student_zone(
     let sections = load_student_zone_sections(&state.db).await;
     let scope = scope_from_headers(headers, users.signing_key.as_slice());
     let records = if let Some(scope) = &scope {
-        load_fee_records_for_scope(&state.db, scope).await
+        load_fee_records_for_scope(fees, scope).await
     } else {
         Vec::new()
     };
@@ -277,6 +269,7 @@ async fn render_student_zone(
 
 pub async fn student_zone(
     Cap(state): Cap<WebsiteState>,
+    Cap(fees): Cap<StudentFeesState>,
     Cap(users): Cap<UsersState>,
     Cap(chrome): Cap<SharedChromeFolder>,
     auth: OptionalAuth,
@@ -284,6 +277,7 @@ pub async fn student_zone(
 ) -> Response {
     render_student_zone(
         &state,
+        &fees,
         &chrome,
         &auth,
         &headers,
@@ -305,7 +299,7 @@ pub struct FeeLoginForm {
 const LOGIN_FAILED: &str = "Mobile number or password did not match any record.";
 
 async fn resolve_login(
-    db: &sea_orm::DatabaseConnection,
+    fees: &StudentFeesState,
     userid: &str,
     password: &str,
 ) -> Option<FeeScope> {
@@ -316,23 +310,16 @@ async fn resolve_login(
     }
     if let Ok(id) = password.parse::<i64>() {
         if id > 0
-            && let Some(row) = TblfeeEntity::find_by_id(id).one(db).await.ok().flatten()
-            && contact_matches(&row.contact, userid)
+            && let Some(row) = find_by_id(fees, id).await
+            && contact_matches(row.contact.as_deref().unwrap_or(""), userid)
         {
             return Some(FeeScope::Receipt(id));
         }
     }
-    if password.is_empty() {
-        return None;
-    }
-    let enroll_rows = TblfeeEntity::find()
-        .filter(tblfee::Column::Enroll.eq(password))
-        .all(db)
-        .await
-        .unwrap_or_default();
+    let enroll_rows = find_by_enroll(fees, password).await;
     if enroll_rows
         .iter()
-        .any(|row| contact_matches(&row.contact, userid))
+        .any(|row| contact_matches(row.contact.as_deref().unwrap_or(""), userid))
     {
         return Some(FeeScope::Enroll(password.to_string()));
     }
@@ -341,15 +328,17 @@ async fn resolve_login(
 
 pub async fn student_zone_login(
     Cap(state): Cap<WebsiteState>,
+    Cap(fees): Cap<StudentFeesState>,
     Cap(users): Cap<UsersState>,
     Cap(chrome): Cap<SharedChromeFolder>,
     auth: OptionalAuth,
     headers: HeaderMap,
     Form(form): Form<FeeLoginForm>,
 ) -> Response {
-    let Some(scope) = resolve_login(&state.db, &form.userid, &form.password).await else {
+    let Some(scope) = resolve_login(&fees, &form.userid, &form.password).await else {
         return render_student_zone(
             &state,
+            &fees,
             &chrome,
             &auth,
             &headers,
