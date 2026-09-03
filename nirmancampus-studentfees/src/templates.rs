@@ -18,7 +18,7 @@ use lariv_rs::{
 };
 
 use crate::forms::{
-    FeeFilterForm, FeeFilterFormField, FeeForm, FeeFormField, FeeUploadForm, PreferencesForm,
+    FeeFilterForm, FeeFilterFormField, FeeForm, FeeFormField, PreferencesForm,
     PreferencesFormField,
 };
 use crate::keys::{FeeCreateModalKey, FeeDeleteModalKey, FeeEditModalKey, FeeTableKey};
@@ -27,7 +27,7 @@ use crate::parse::{flag_label, opt_str};
 use crate::routes::{
     StudentFeesCreatePostRouteTag, StudentFeesDeleteGetRouteTag, StudentFeesDeletePostRouteTag,
     StudentFeesDetailRouteTag, StudentFeesEditGetRouteTag, StudentFeesEditPostRouteTag,
-    StudentFeesListRouteTag, StudentFeesPrefsPostRouteTag, StudentFeesSyncRouteTag,
+    StudentFeesListRouteTag, StudentFeesPrefsPostRouteTag, 
 };
 use nirmancampus_common::ui::{
     APP_TITLE, app_scaffold, empty_dash, render_pagination, scaffold_main, scaffold_pane,
@@ -214,23 +214,6 @@ impl FeeListPage {
                 @if !self.sync_message.is_empty() {
                     p class="text-success mb-2" { (self.sync_message) }
                 }
-                @if self.is_admin {
-                    (form(FormOpts {
-                        attrs: form_hx_post_main(StudentFeesSyncRouteTag)
-                            .set("hx-encoding", "multipart/form-data"),
-                        enctype: Some("multipart/form-data"),
-                        form_error: if self.sync_error.is_empty() {
-                            None
-                        } else {
-                            Some(self.sync_error.as_str())
-                        },
-                        inputs: FeeUploadForm::render_inputs(&FormCtx::form::<FeeUploadForm>()),
-                        actions: html! {
-                            (button_submit(ButtonSubmit { label: "Upload and import", ..Default::default() }))
-                        },
-                        ..Default::default()
-                    }))
-                }
                 (self.render_table())
             }))
         }
@@ -249,7 +232,7 @@ impl lariv_rs::template::RenderAppPane for FeeListPage {
 impl RenderTemplate for FeeListPage {
     fn render(&self, chrome: &ShellChrome) -> Markup {
         app_scaffold(
-            &format!("Student Fees — {APP_TITLE}"),
+            &format!("IGNOU Students — {APP_TITLE}"),
             chrome,
             fees_menu(),
             fees_crumbs("Fee records"),
@@ -579,7 +562,7 @@ impl lariv_rs::template::RenderAppPane for FeePreferencesPage {
 impl RenderTemplate for FeePreferencesPage {
     fn render(&self, chrome: &ShellChrome) -> Markup {
         app_scaffold(
-            &format!("Student Fees preferences — {APP_TITLE}"),
+            &format!("IGNOU Students preferences — {APP_TITLE}"),
             chrome,
             fees_menu(),
             prefs_crumbs(),

@@ -7,7 +7,7 @@ use nirmancampus_common::ui::{item_crumbs, list_crumbs};
 
 pub fn fees_menu() -> Markup {
     sidebar_menu(SidebarMenu {
-        title: "Student Fees",
+        title: "IGNOU Students",
         children: html! {
             (sidebar_menu_item(SidebarMenuItem {
                 title: "Fee records",
@@ -25,13 +25,13 @@ pub fn fees_menu() -> Markup {
 
 pub fn fees_crumbs(leaf: &str) -> Markup {
     let list_url = StudentFeesListRouteTag.url();
-    list_crumbs("Student Fees", &list_url, leaf)
+    list_crumbs("IGNOU Students", &list_url, leaf)
 }
 
 pub fn fee_detail_crumbs(id: i64, title: &str, action: Option<&str>) -> Markup {
     let list_url = StudentFeesListRouteTag.url();
     let detail_url = StudentFeesDetailRouteTag::new(id).url();
-    item_crumbs("Student Fees", &list_url, title, Some(&detail_url), action)
+    item_crumbs("IGNOU Students", &list_url, title, Some(&detail_url), action)
 }
 
 pub fn fee_detail_menu(id: i64, title: &str, is_admin: bool) -> Markup {
